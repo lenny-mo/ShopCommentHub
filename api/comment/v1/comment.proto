@@ -1,0 +1,132 @@
+syntax = "proto3";
+
+package api.comment.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "comment/api/comment/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.comment.v1";
+
+// 定义商品评价服务
+service CommentService {
+	// common 读模型
+	// 查看商品SKUID=10的所有评价
+	rpc GetComments(GetCommentsRequest) returns (GetCommentsResponse) {
+		option (google.api.http) = {
+			get: "/product-review/v1/get-comments/{sku_id}"
+		};
+	}
+
+  	// 消费者流程
+  	// 对商品SKUID=10发表评价
+	rpc AddComment(CommentRequest) returns (CommentResponse) {
+		option (google.api.http) = {
+			post: "/product-review/v1/add-comment"
+			body: "*"
+		};
+	}
+
+  	// 对商品SKUID=10的其中的一条评价发表回复
+	rpc AddReply(ReplyRequest) returns (ReplyResponse) {
+		option (google.api.http) = {
+			post: "/product-review/v1/add-reply"
+			body: "*"
+		};
+	}
+
+  	// 商家流程
+  	// 发布商品SKUID=10
+	rpc AddProduct(MerchantAddProductRequest) returns (MerchantAddProductResponse) {
+		option (google.api.http) = {
+			post: "/product-review/v1/add-product"
+			body: "*"
+		};
+	}
+
+	// 对商品SKUID=10的其中一条评价发表回复
+	rpc AddProductReply(MerchantReplyRequest) returns (MerchantReplyResponse) {
+		option (google.api.http) = {
+			post: "/product-review/v1/add-product-reply"
+			body: "*"
+		};
+	}
+}
+
+// common 读模型
+// 查看商品SKUID=10的所有评价
+message GetCommentsRequest {
+	int32 sku_id = 1;
+}
+
+message GetCommentsResponse {
+	repeated Comment comment_list = 1;
+}
+
+// 消费者流程
+// 对商品SKUID=10发表评价
+message CommentRequest {
+	int64 consumer_id = 1;
+	uint64 last_version = 2;
+	string sku_id = 3;
+	string comment_content = 4;
+}
+
+message CommentResponse {
+	bool success = 1;
+	string message = 2;
+}
+
+// 对商品SKUID=10的其中的一条评价发表回复
+message ReplyRequest {
+	int64 consumer_id = 1;
+	string sku_id = 2;
+	string last_comment_id = 3;
+	string reply_content = 4;
+	uint64 last_version = 5; 
+}
+
+message ReplyResponse {
+	bool success = 1;
+	string message = 2;
+}
+
+
+// 商家流程
+// 发布商品SKUID=10
+message MerchantAddProductRequest {
+	int64 merchant_id = 1;
+	Product product = 2;
+}
+
+message MerchantAddProductResponse {
+	bool success = 1;
+	string message = 2;
+}
+
+// 对商品SKUID=10的其中一条评价发表回复
+message MerchantReplyRequest {
+	int64 merchant_id = 1;
+	string sku_id = 2;
+	string last_comment_id = 3;
+	string reply_content = 4;
+	uint64 last_version = 5;
+}
+
+message MerchantReplyResponse {
+	bool success = 1;
+	string message = 2;
+}
+
+// 评价消息定义
+message Comment {
+	int32 comment_id = 1;
+	string consumer_id = 2;
+	string comment_content = 3;
+}
+
+// 商品消息定义
+message Product {
+	string sku_id = 1;
+	string title = 2;
+}
