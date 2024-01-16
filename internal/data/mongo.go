@@ -1,7 +1,6 @@
 package data
 
 import (
-	"comment/internal/biz"
 	"context"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -13,8 +12,8 @@ type MongoRepo struct {
 }
 
 // NewCustomerRepo
-func NewMongoRepo(data *Data, logger log.Logger) biz.CustomerRepo {
-	return &CustomerRepo{
+func NewMongoRepo(data *Data, logger log.Logger) *MongoRepo {
+	return &MongoRepo{
 		data: data,
 		log:  log.NewHelper(logger),
 	}
