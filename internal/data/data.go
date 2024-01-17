@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
+	"github.com/segmentio/kafka-go"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"gorm.io/driver/mysql"
@@ -14,24 +15,25 @@ import (
 )
 
 // ProviderSet is data providers.
-var ProviderSet = wire.NewSet(NewData, NewDB, NewMongo, NewCustomerRepo, NewMerchantRepo, NewMongoRepo)
+var ProviderSet = wire.NewSet(NewData, NewDB, NewMongo, NewCustomerRepo, NewMerchantRepo, NewEventBusRepo)
 
 // Data .
 type Data struct {
 	//  wrapped database client
 	q     *query.Query    // mysql
 	mongo *mongo.Database // mongo
+	kafka *kafka.Conn     // kafka
 	log   *log.Helper
 }
 
 // NewData .
 // 修改：添加gorm.DB
-func NewData(db *gorm.DB, mongo *mongo.Database, logger log.Logger) (*Data, func(), error) {
+func NewData(db *gorm.DB, mongo *mongo.Database, kafka *kafka.Conn, logger log.Logger) (*Data, func(), error) {
 	cleanup := func() {
 		log.NewHelper(logger).Info("closing the data resources")
 	}
 	query.SetDefault(db) // 选择数据库
-	return &Data{q: query.Q, mongo: mongo, log: log.NewHelper(logger)}, cleanup, nil
+	return &Data{q: query.Q, mongo: mongo, kafka: kafka, log: log.NewHelper(logger)}, cleanup, nil
 }
 
 func NewDB(cfg *conf.Data) *gorm.DB {
@@ -62,4 +64,13 @@ func NewMongo(cfg *conf.Data) *mongo.Database {
 	db := client.Database(cfg.Mongo.Db)
 
 	return db
+}
+
+func NewKafka(cfg *conf.Data) *kafka.Conn {
+	// 设置连接选项
+	client, err := kafka.DialLeader(context.TODO(), cfg.Kafka.Network, cfg.Kafka.Source, cfg.Kafka.Topic, int(cfg.Kafka.Partition))
+	if err != nil {
+		panic(err)
+	}
+	return client
 }
