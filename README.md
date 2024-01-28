@@ -28,7 +28,8 @@
 
 #### 领域命令和领域事件
 
-![Alt text](image.png)
+![](https://raw.githubusercontent.com/lenny-mo/PictureUploadFolder/main/领域事件图.png)
+
 
 #### 领域事件的流程
 消费者流程
@@ -48,11 +49,11 @@
 
 ### 整体架构图
 
-![Alt text](image-1.png)
+![image.png](https://raw.githubusercontent.com/lenny-mo/PictureUploadFolder/main/20240128115731.png)
 
 ### 请求的分层结构
 
-![Alt text](image-2.png)
+![image.png](https://raw.githubusercontent.com/lenny-mo/PictureUploadFolder/main/20240128115758.png)
 
 ### 基础设施
 
