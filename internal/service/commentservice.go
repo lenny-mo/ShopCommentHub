@@ -14,16 +14,20 @@ type CommentServiceService struct {
 	pb.UnimplementedCommentServiceServer
 
 	// 聚合根
-	customer *biz.CustomerUsecase
-	merchant *biz.MerchantUsecase
+	customer  *biz.CustomerUsecase
+	merchant  *biz.MerchantUsecase
+	bus       *biz.BusUseCase
+	readmodel *biz.ReadModelUsecase
 }
 
 // service 层
 // 传递两个聚合根实体
-func NewCommentServiceService(c *biz.CustomerUsecase, m *biz.MerchantUsecase) *CommentServiceService {
+func NewCommentServiceService(c *biz.CustomerUsecase, m *biz.MerchantUsecase, b *biz.BusUseCase, r *biz.ReadModelUsecase) *CommentServiceService {
 	return &CommentServiceService{
-		customer: c,
-		merchant: m,
+		customer:  c,
+		merchant:  m,
+		bus:       b,
+		readmodel: r,
 	}
 }
 
@@ -31,7 +35,16 @@ func NewCommentServiceService(c *biz.CustomerUsecase, m *biz.MerchantUsecase) *C
 //
 // 直接获取ES的数据
 func (s *CommentServiceService) GetComments(ctx context.Context, req *pb.GetCommentsRequest) (*pb.GetCommentsResponse, error) {
-	return &pb.GetCommentsResponse{}, nil
+	// TODO 查看商品SKUID=10的所有评价
+	data, err := s.readmodel.GetAllCommentsBySKUID(ctx, req.SkuId)
+	if err != nil {
+		return &pb.GetCommentsResponse{}, err
+	}
+
+	return &pb.GetCommentsResponse{
+		CommentList: data,
+	}, nil
+
 }
 
 // ----------------------- customer --------------------------------//
