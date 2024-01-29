@@ -40,7 +40,19 @@ message Data {
     string source = 1; 
     string db = 2;
   }
+  message Kafka {
+    string source = 1;  
+    string topic = 2;
+    int32 partition = 3;
+    string network = 4;
+  }
+  message ElasticSearch {
+    repeated string addrs = 1;
+    string index = 2;
+  }
   Database database = 1;
   Redis redis = 2;
   Mongo mongo = 3;
+  Kafka kafka = 4;
+  ElasticSearch elasticsearch = 5;
 }
