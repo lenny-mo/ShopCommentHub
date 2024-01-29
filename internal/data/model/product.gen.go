@@ -8,9 +8,10 @@ const TableNameProduct = "product"
 
 // Product mapped from table <product>
 type Product struct {
-	ID    int32   `gorm:"column:id;primaryKey" json:"id"`
-	SkuID *string `gorm:"column:sku_id" json:"sku_id"`
-	Title *string `gorm:"column:title" json:"title"`
+	ID         int64   `gorm:"column:id;primaryKey" json:"id"`
+	SkuID      *string `gorm:"column:sku_id" json:"sku_id"`
+	Title      *string `gorm:"column:title" json:"title"`
+	MerchantID int64   `gorm:"column:merchant_id;not null;comment:商家id" json:"merchant_id"` // 商家id
 }
 
 // TableName Product's table name

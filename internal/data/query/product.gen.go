@@ -27,9 +27,10 @@ func newProduct(db *gorm.DB, opts ...gen.DOOption) product {
 
 	tableName := _product.productDo.TableName()
 	_product.ALL = field.NewAsterisk(tableName)
-	_product.ID = field.NewInt32(tableName, "id")
+	_product.ID = field.NewInt64(tableName, "id")
 	_product.SkuID = field.NewString(tableName, "sku_id")
 	_product.Title = field.NewString(tableName, "title")
+	_product.MerchantID = field.NewInt64(tableName, "merchant_id")
 
 	_product.fillFieldMap()
 
@@ -39,10 +40,11 @@ func newProduct(db *gorm.DB, opts ...gen.DOOption) product {
 type product struct {
 	productDo productDo
 
-	ALL   field.Asterisk
-	ID    field.Int32
-	SkuID field.String
-	Title field.String
+	ALL        field.Asterisk
+	ID         field.Int64
+	SkuID      field.String
+	Title      field.String
+	MerchantID field.Int64 // 商家id
 
 	fieldMap map[string]field.Expr
 }
@@ -59,9 +61,10 @@ func (p product) As(alias string) *product {
 
 func (p *product) updateTableName(table string) *product {
 	p.ALL = field.NewAsterisk(table)
-	p.ID = field.NewInt32(table, "id")
+	p.ID = field.NewInt64(table, "id")
 	p.SkuID = field.NewString(table, "sku_id")
 	p.Title = field.NewString(table, "title")
+	p.MerchantID = field.NewInt64(table, "merchant_id")
 
 	p.fillFieldMap()
 
@@ -86,10 +89,11 @@ func (p *product) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (p *product) fillFieldMap() {
-	p.fieldMap = make(map[string]field.Expr, 3)
+	p.fieldMap = make(map[string]field.Expr, 4)
 	p.fieldMap["id"] = p.ID
 	p.fieldMap["sku_id"] = p.SkuID
 	p.fieldMap["title"] = p.Title
+	p.fieldMap["merchant_id"] = p.MerchantID
 }
 
 func (p product) clone(db *gorm.DB) product {

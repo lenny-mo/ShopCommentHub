@@ -12,15 +12,15 @@ const TableNameCustomerComment = "customer_comment"
 
 // CustomerComment mapped from table <customer_comment>
 type CustomerComment struct {
-	ID            uint64     `gorm:"column:id;primaryKey;autoIncrement:true;comment:自增主键" json:"id"`                    // 自增主键
-	CreateAt      *time.Time `gorm:"column:create_at;not null;default:CURRENT_TIMESTAMP;comment:创建时间" json:"create_at"` // 创建时间
-	UpdateAt      *time.Time `gorm:"column:update_at;not null;default:CURRENT_TIMESTAMP;comment:更新时间" json:"update_at"` // 更新时间
-	Version       uint64     `gorm:"column:version;not null;comment:乐观锁" json:"version"`                                // 乐观锁
-	CustomerID    int64      `gorm:"column:customer_id;not null;comment:消费者id" json:"customer_id"`                      // 消费者id
-	CommentID     string     `gorm:"column:comment_id;not null;comment:评论id, uuid" json:"comment_id"`                   // 评论id, uuid
-	LastCommentID string     `gorm:"column:last_comment_id;not null;comment:评论id" json:"last_comment_id"`               // 评论id
-	Content       string     `gorm:"column:content;not null;comment:评价内容" json:"content"`                               // 评价内容
-	SkuID         string     `gorm:"column:sku_id;not null" json:"sku_id"`
+	ID            uint64    `gorm:"column:id;primaryKey;autoIncrement:true;comment:自增主键" json:"id"`      // 自增主键
+	CreateAt      time.Time `gorm:"column:create_at;not null;comment:创建时间" json:"create_at"`             // 创建时间
+	UpdateAt      time.Time `gorm:"column:update_at;not null;comment:更新时间" json:"update_at"`             // 更新时间
+	Version       uint64    `gorm:"column:version;not null;comment:乐观锁" json:"version"`                  // 乐观锁
+	CustomerID    int64     `gorm:"column:customer_id;not null;comment:消费者id" json:"customer_id"`        // 消费者id
+	CommentID     string    `gorm:"column:comment_id;not null;comment:评论id, uuid" json:"comment_id"`     // 评论id, uuid
+	LastCommentID string    `gorm:"column:last_comment_id;not null;comment:评论id" json:"last_comment_id"` // 评论id
+	Content       string    `gorm:"column:content;not null;comment:评价内容" json:"content"`                 // 评价内容
+	SkuID         string    `gorm:"column:sku_id;not null" json:"sku_id"`
 }
 
 // TableName CustomerComment's table name
