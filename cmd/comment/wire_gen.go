@@ -25,7 +25,11 @@ import (
 // wireApp init kratos application.
 func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*kratos.App, func(), error) {
 	db := data.NewDB(confData)
-	dataData, cleanup, err := data.NewData(db, logger)
+	client := data.NewRedis(confData)
+	database := data.NewMongo(confData)
+	writer := data.NewKafka(confData)
+	esWithIndex := data.NewEsWithIndex(confData)
+	dataData, cleanup, err := data.NewData(db, client, database, writer, esWithIndex, logger)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -33,7 +37,11 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	customerUsecase := biz.NewCustomerUsecase(customerRepo, logger)
 	merchantRepo := data.NewMerchantRepo(dataData, logger)
 	merchantUsecase := biz.NewMerchantUsecase(merchantRepo, logger)
-	commentServiceService := service.NewCommentServiceService(customerUsecase, merchantUsecase)
+	eventBusRepo := data.NewEventBusRepo(dataData, logger)
+	busUseCase := biz.NewBusUseCase(eventBusRepo, logger)
+	readModelRepo := data.NewReadModelRepo(dataData, logger)
+	readModelUsecase := biz.NewReadModelUsecase(readModelRepo, logger)
+	commentServiceService := service.NewCommentServiceService(customerUsecase, merchantUsecase, busUseCase, readModelUsecase)
 	grpcServer := server.NewGRPCServer(confServer, commentServiceService, logger)
 	httpServer := server.NewHTTPServer(confServer, commentServiceService, logger)
 	app := newApp(logger, grpcServer, httpServer)

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"os"
 
@@ -83,9 +82,8 @@ func main() {
 	defer cleanup()
 
 	// 初始化事件总线
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	service.InitEventBus(ctx)
+	service.InitEventBus()
+	defer service.CloseBus()
 
 	// start and wait for stop signal
 	if err := app.Run(); err != nil {
