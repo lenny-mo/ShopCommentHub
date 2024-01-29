@@ -297,7 +297,16 @@ func (m *CommentRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for ConsumerId
+	if m.GetConsumerId() <= 0 {
+		err := CommentRequestValidationError{
+			field:  "ConsumerId",
+			reason: "value must be greater than 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	// no validation rules for LastVersion
 
