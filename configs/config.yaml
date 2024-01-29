@@ -17,3 +17,12 @@ data:
   mongo:
     source: mongodb://localhost:27017
     db: test
+  kafka:
+    network: tcp
+    source: localhost:9092
+    topic: eventbus
+    partition: 0
+  elasticsearch:
+    addrs:
+      - http://localhost:9200
+    index: comment
