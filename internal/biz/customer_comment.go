@@ -18,6 +18,8 @@ type CustomerUsecase struct {
 type CustomerRepo interface {
 	// 存储评论
 	CreateComment(context.Context, *model.CustomerComment) (*model.CustomerComment, error)
+	// 回复已有的评论
+	ReplyComment(context.Context, *model.CustomerComment) (*model.CustomerComment, error)
 }
 
 // CustomerUsecase 构造函数
@@ -33,6 +35,10 @@ func (uc *CustomerUsecase) AddComment(ctx context.Context, customer *model.Custo
 
 	// 2. 使用乐观锁判断数据是否被更改
 
+// ReplyComment 用户对商品的回复
+func (uc *CustomerUsecase) ReplyComment(ctx context.Context, customer *model.CustomerComment) (*model.CustomerComment, error) {
+	uc.log.WithContext(ctx).Debugf("ReplyComment: req: %v", customer)
+	uc.c = customer
 	// 3. 新纪录插入数据库即可，缓存在后续查找的时候会添加
-	return uc.repo.CreateComment(ctx, customer)
+	return uc.repo.ReplyComment(ctx, uc.c)
 }

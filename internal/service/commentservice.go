@@ -2,8 +2,10 @@ package service
 
 import (
 	"context"
+	"time"
 
 	pb "comment/api/comment/v1"
+	v1 "comment/api/comment/v1"
 	"comment/internal/biz"
 	"comment/internal/data/model"
 
@@ -75,7 +77,35 @@ func (s *CommentServiceService) AddComment(ctx context.Context, req *pb.CommentR
 
 // AddReply customer reply to an existing comment
 func (s *CommentServiceService) AddReply(ctx context.Context, req *pb.ReplyRequest) (*pb.ReplyResponse, error) {
-	return &pb.ReplyResponse{}, nil
+	// 1. 参数格式转换 DTO转VO，从外部pb传递进来的参数
+	// 需要构造成聚合根传递给领域业务，领域内的数据修改，只能依靠聚合根的数据
+	comment, err := s.customer.ReplyComment(ctx, &model.CustomerComment{
+		CustomerID:    req.ConsumerId,
+		CommentID:     uuid.New().String(),
+		Version:       req.LastVersion + 1,
+		Content:       req.ReplyContent,
+		SkuID:         req.SkuId,
+		LastCommentID: req.LastCommentId,
+		CreateAt:      time.Now(),
+		UpdateAt:      time.Now(),
+	})
+
+	// 2. 写入事件总线: 如果领域层执行成功，发送“消费者回复评价成功” 事件， 否则发送“消费者回复评价失败”
+	if err != nil {
+		nerr := v1.ErrorUserIDError("写入数据库失败") // 使用自定义错误
+
+		general_bus.Publish("customer:AddReply:fail", "AddReplyFail", comment, s.bus)
+		return &pb.ReplyResponse{
+			Success: false,
+			Message: nerr.String(),
+		}, err
+	}
+	general_bus.Publish("customer:AddReply:success", "AddReplySuccess", comment, s.bus)
+
+	return &pb.ReplyResponse{
+		Success: true,
+		Message: "success",
+	}, err
 }
 
 // ----------------------- merchant --------------------------------//
