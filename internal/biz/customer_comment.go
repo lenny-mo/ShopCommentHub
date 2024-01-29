@@ -31,9 +31,10 @@ func NewCustomerUsecase(repo CustomerRepo, logger log.Logger) *CustomerUsecase {
 // AddComment 添加用户对商品的新评价
 func (uc *CustomerUsecase) AddComment(ctx context.Context, customer *model.CustomerComment) (*model.CustomerComment, error) {
 	uc.log.WithContext(ctx).Debugf("AddComment: req: %v", customer)
-	// 1. 数据校验
-
-	// 2. 使用乐观锁判断数据是否被更改
+	uc.c = customer
+	// 3. 新纪录插入数据库即可，缓存在后续查找的时候会添加
+	return uc.repo.CreateComment(ctx, uc.c)
+}
 
 // ReplyComment 用户对商品的回复
 func (uc *CustomerUsecase) ReplyComment(ctx context.Context, customer *model.CustomerComment) (*model.CustomerComment, error) {
