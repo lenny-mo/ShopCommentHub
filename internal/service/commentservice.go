@@ -37,7 +37,6 @@ func NewCommentServiceService(c *biz.CustomerUsecase, m *biz.MerchantUsecase, b 
 //
 // 直接获取ES的数据
 func (s *CommentServiceService) GetComments(ctx context.Context, req *pb.GetCommentsRequest) (*pb.GetCommentsResponse, error) {
-	// TODO 查看商品SKUID=10的所有评价
 	data, err := s.readmodel.GetAllCommentsBySKUID(ctx, req.SkuId)
 	if err != nil {
 		return &pb.GetCommentsResponse{}, err
@@ -54,20 +53,28 @@ func (s *CommentServiceService) GetComments(ctx context.Context, req *pb.GetComm
 func (s *CommentServiceService) AddComment(ctx context.Context, req *pb.CommentRequest) (*pb.CommentResponse, error) {
 	// 1. 参数格式转换 DTO转VO，从外部pb传递进来的参数
 	// 需要构造成聚合根传递给领域业务，领域内的数据修改，只能依靠聚合根的数据
+	// 保证同时写入mysql + mongo
 	comment, err := s.customer.AddComment(ctx, &model.CustomerComment{
 		CustomerID: req.ConsumerId,
 		CommentID:  uuid.New().String(),
 		Version:    req.LastVersion + 1,
 		Content:    req.CommentContent,
 		SkuID:      req.SkuId,
+		CreateAt:   time.Now(),
+		UpdateAt:   time.Now(),
 	})
 
 	// 2. 写入事件总线: 如果领域层执行成功，发送“消费者发表评价成功” 事件， 否则发送“消费者发表评价失败”
 	if err != nil {
-		bus.Publish("customer:AddComment:fail", "fail", comment)
-	}
+		nerr := v1.ErrorUserIDError("写入数据库失败") // 使用自定义错误
 
-	bus.Publish("customer:AddComment:success", "success", comment)
+		general_bus.Publish("customer:AddComment:fail", "AddCommentFail", comment, s.bus)
+		return &pb.CommentResponse{
+			Success: false,
+			Message: nerr.String(),
+		}, err
+	}
+	general_bus.Publish("customer:AddComment:success", "AddCommentSuccess", comment, s.bus)
 
 	return &pb.CommentResponse{
 		Success: true,
@@ -111,11 +118,40 @@ func (s *CommentServiceService) AddReply(ctx context.Context, req *pb.ReplyReque
 // ----------------------- merchant --------------------------------//
 // AddProduct merchant add a product
 func (s *CommentServiceService) AddProduct(ctx context.Context, req *pb.MerchantAddProductRequest) (*pb.MerchantAddProductResponse, error) {
-	//
+	// 1. 检查skuid + merchant_id 是否已经被添加过，同一个商家不能重复添加
+	// TODO
 	return &pb.MerchantAddProductResponse{}, nil
 }
 
 // AddProductReply merchant reply to an existing comment
 func (s *CommentServiceService) AddProductReply(ctx context.Context, req *pb.MerchantReplyRequest) (*pb.MerchantReplyResponse, error) {
-	return &pb.MerchantReplyResponse{}, nil
+	// 1. 参数格式转换 DTO转VO，从外部pb传递进来的参数
+	// 需要构造成聚合根传递给领域业务，领域内的数据修改，只能依靠聚合根的数据
+	comment, err := s.merchant.ReplyComment(ctx, &model.MerchantComment{
+		MerchantID:    req.MerchantId,
+		CommentID:     uuid.New().String(),
+		LastCommentID: req.LastCommentId,
+		Version:       req.LastVersion + 1,
+		Content:       req.ReplyContent,
+		SkuID:         req.SkuId,
+		CreateAt:      time.Now(),
+		UpdateAt:      time.Now(),
+	})
+
+	// 2. 写入事件总线: 如果领域层执行成功，发送“消费者回复评价成功” 事件， 否则发送“消费者回复评价失败”
+	if err != nil {
+		nerr := v1.ErrorUserIDError("写入数据库失败") // 使用自定义错误
+
+		general_bus.Publish("merchant:AddReply:fail", "AddReplyFail", comment, s.bus)
+		return &pb.MerchantReplyResponse{
+			Success: false,
+			Message: nerr.String(),
+		}, nil
+	}
+	general_bus.Publish("merchant:AddReply:success", "AddReplySuccess", comment, s.bus)
+
+	return &pb.MerchantReplyResponse{
+		Success: true,
+		Message: "success",
+	}, nil
 }

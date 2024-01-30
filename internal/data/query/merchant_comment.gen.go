@@ -54,7 +54,7 @@ type merchantComment struct {
 	CommentID     field.String // 评论id, uuid
 	LastCommentID field.String // 上一条评论id, uuid
 	Content       field.String // 评价内容
-	SkuID         field.String // 商品sku_id
+	SkuID         field.String
 
 	fieldMap map[string]field.Expr
 }
