@@ -118,9 +118,26 @@ func (s *CommentServiceService) AddReply(ctx context.Context, req *pb.ReplyReque
 // ----------------------- merchant --------------------------------//
 // AddProduct merchant add a product
 func (s *CommentServiceService) AddProduct(ctx context.Context, req *pb.MerchantAddProductRequest) (*pb.MerchantAddProductResponse, error) {
-	// 1. 检查skuid + merchant_id 是否已经被添加过，同一个商家不能重复添加
-	// TODO
-	return &pb.MerchantAddProductResponse{}, nil
+	product, err := s.merchant.AddProduct(ctx, &model.Product{
+		SkuID:      req.Product.SkuId,
+		MerchantID: req.MerchantId,
+		Title:      req.Product.Title,
+	})
+
+	// 2. 写入事件总线: 如果领域层执行成功，发送“成功” 事件， 否则发送“失败”
+	if err != nil {
+		general_bus.Publish("merchant:AddProduct:fail", "AddProductFail", product, s.bus)
+		return &pb.MerchantAddProductResponse{
+			Success: false,
+			Message: err.Error(),
+		}, nil
+	}
+	general_bus.Publish("merchant:AddProduct:success", "AddProductSuccess", product, s.bus)
+
+	return &pb.MerchantAddProductResponse{
+		Success: true,
+		Message: "success",
+	}, nil
 }
 
 // AddProductReply merchant reply to an existing comment

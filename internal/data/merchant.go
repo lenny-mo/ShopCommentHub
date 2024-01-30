@@ -10,6 +10,7 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/bson"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -24,6 +25,31 @@ func NewMerchantRepo(data *Data, logger log.Logger) biz.MerchantRepo {
 		data: data,
 		log:  log.NewHelper(logger),
 	}
+}
+
+func (r *MerchantRepo) AddProduct(ctx context.Context, p *model.Product) (*model.Product, error) {
+	// 1. 检查skuid + merchant_id 是否已经被添加过，同一个商家不能重复添加商品
+	// 在mysql表中创建联合索引
+	_, err := r.data.q.Product.WithContext(ctx).Where(
+		r.data.q.Product.MerchantID.Eq(p.MerchantID),
+		r.data.q.Product.SkuID.Eq(p.SkuID)).First()
+
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		if err == nil {
+			r.log.Error("this merchant cannnot add repeated skuid")
+			return p, errors.New("this merchant cannnot add repeated skuid")
+		}
+		r.log.Error(err)
+		return p, err
+	}
+
+	// 2. 执行插入商品操作
+	if err := r.data.q.Product.WithContext(ctx).Create(p); err != nil {
+		r.log.Error(err)
+		return p, err
+	}
+
+	return p, nil
 }
 
 // CreateComment 使用事务保证写入mysql和mongo
