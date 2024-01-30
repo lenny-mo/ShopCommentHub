@@ -20,7 +20,7 @@ type MerchantComment struct {
 	CommentID     string    `gorm:"column:comment_id;not null;comment:评论id, uuid" json:"comment_id"`              // 评论id, uuid
 	LastCommentID string    `gorm:"column:last_comment_id;not null;comment:上一条评论id, uuid" json:"last_comment_id"` // 上一条评论id, uuid
 	Content       string    `gorm:"column:content;not null;comment:评价内容" json:"content"`                          // 评价内容
-	SkuID         *string   `gorm:"column:sku_id;comment:商品sku_id" json:"sku_id"`                                 // 商品sku_id
+	SkuID         string    `gorm:"column:sku_id;not null" json:"sku_id"`
 }
 
 // TableName MerchantComment's table name
