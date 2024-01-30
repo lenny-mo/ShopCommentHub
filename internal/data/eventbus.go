@@ -43,9 +43,16 @@ func (e *EventBusRepo) Insert(ctx context.Context, data interface{}) (interface{
 			return data, err
 		} else {
 			// 2. 执行成功，把mongo中对应的字段设置为true, 并且退出循环
-			filter := bson.D{{"commentid", data.(*model.CustomerComment).CommentID}}
-			update := bson.D{{"$set", bson.D{{"sendtomq", true}}}}
-			e.data.mongo.Collection("AddCommentSuccess").UpdateOne(ctx, filter, update)
+			switch data.(type) {
+			case *model.CustomerComment:
+				filter := bson.D{{"commentid", data.(*model.CustomerComment).CommentID}}
+				update := bson.D{{"$set", bson.D{{"sendtomq", true}}}}
+				e.data.mongo.Collection("AddCommentSuccess").UpdateOne(ctx, filter, update)
+			case *model.MerchantComment:
+				filter := bson.D{{"commentid", data.(*model.MerchantComment).CommentID}}
+				update := bson.D{{"$set", bson.D{{"sendtomq", true}}}}
+				e.data.mongo.Collection("AddCommentSuccess").UpdateOne(ctx, filter, update)
+			}
 			break
 		}
 	}

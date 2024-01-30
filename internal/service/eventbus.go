@@ -33,6 +33,9 @@ func InitEventBus() {
 	general_bus.Subscribe("customer:AddComment:fail", printFail)
 	general_bus.Subscribe("customer:AddReply:success", sendToMQ)
 	general_bus.Subscribe("customer:AddReply:fail", printFail)
+	general_bus.Subscribe("merchant:AddReply:success", sendToMQ)
+	general_bus.Subscribe("merchant:AddReply:fail", printFail)
+
 	general_bus.Subscribe("scanMongoSendUnsuccessMsg", scanUserCommentMongo) // 定时任务
 
 	// 创建 cron, 开启一个永不停止的时间轮, 注意defer stop
