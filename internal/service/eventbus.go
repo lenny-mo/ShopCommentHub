@@ -30,11 +30,16 @@ func InitEventBus() {
 
 	// 监听事件
 	general_bus.Subscribe("customer:AddComment:success", sendToMQ)
-	general_bus.Subscribe("customer:AddComment:fail", printFail)
+	general_bus.Subscribe("customer:AddComment:fail", printInfo)
+
 	general_bus.Subscribe("customer:AddReply:success", sendToMQ)
-	general_bus.Subscribe("customer:AddReply:fail", printFail)
+	general_bus.Subscribe("customer:AddReply:fail", printInfo)
+
 	general_bus.Subscribe("merchant:AddReply:success", sendToMQ)
-	general_bus.Subscribe("merchant:AddReply:fail", printFail)
+	general_bus.Subscribe("merchant:AddReply:fail", printInfo)
+
+	general_bus.Subscribe("merchant:AddProduct:success", printInfo)
+	general_bus.Subscribe("merchant:AddProduct:fail", printInfo)
 
 	general_bus.Subscribe("scanMongoSendUnsuccessMsg", scanUserCommentMongo) // 定时任务
 
@@ -77,7 +82,7 @@ func sendToMQ(event string, data interface{}, b *biz.BusUseCase) {
 	fmt.Println("写入 kafka 成功", event)
 }
 
-func printFail(event string, data interface{}, b *biz.BusUseCase) {
+func printInfo(event string, data interface{}, b *biz.BusUseCase) {
 	fmt.Println(event, data)
 }
 
