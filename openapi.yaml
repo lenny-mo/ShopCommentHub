@@ -19,7 +19,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/CommentRequest'
+                            $ref: '#/components/schemas/api.comment.v1.CommentRequest'
                 required: true
             responses:
                 "200":
@@ -27,13 +27,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/CommentResponse'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
+                                $ref: '#/components/schemas/api.comment.v1.CommentResponse'
     /product-review/v1/add-product:
         post:
             tags:
@@ -46,7 +40,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/MerchantAddProductRequest'
+                            $ref: '#/components/schemas/api.comment.v1.MerchantAddProductRequest'
                 required: true
             responses:
                 "200":
@@ -54,13 +48,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/MerchantAddProductResponse'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
+                                $ref: '#/components/schemas/api.comment.v1.MerchantAddProductResponse'
     /product-review/v1/add-product-reply:
         post:
             tags:
@@ -71,7 +59,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/MerchantReplyRequest'
+                            $ref: '#/components/schemas/api.comment.v1.MerchantReplyRequest'
                 required: true
             responses:
                 "200":
@@ -79,13 +67,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/MerchantReplyResponse'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
+                                $ref: '#/components/schemas/api.comment.v1.MerchantReplyResponse'
     /product-review/v1/add-reply:
         post:
             tags:
@@ -96,7 +78,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/ReplyRequest'
+                            $ref: '#/components/schemas/api.comment.v1.ReplyRequest'
                 required: true
             responses:
                 "200":
@@ -104,13 +86,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ReplyResponse'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
+                                $ref: '#/components/schemas/api.comment.v1.ReplyResponse'
     /product-review/v1/get-comments/{skuId}:
         get:
             tags:
@@ -132,27 +108,20 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/GetCommentsResponse'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
+                                $ref: '#/components/schemas/api.comment.v1.GetCommentsResponse'
 components:
     schemas:
-        Comment:
+        api.comment.v1.Comment:
             type: object
             properties:
                 commentId:
-                    type: integer
-                    format: int32
+                    type: string
                 consumerId:
                     type: string
                 commentContent:
                     type: string
             description: 评价消息定义
-        CommentRequest:
+        api.comment.v1.CommentRequest:
             type: object
             properties:
                 consumerId:
@@ -166,46 +135,38 @@ components:
             description: |-
                 消费者流程
                  对商品SKUID=10发表评价
-        CommentResponse:
+        api.comment.v1.CommentResponse:
             type: object
             properties:
                 success:
                     type: boolean
                 message:
                     type: string
-        GetCommentsResponse:
+        api.comment.v1.GetCommentsResponse:
             type: object
             properties:
                 commentList:
                     type: array
                     items:
-                        $ref: '#/components/schemas/Comment'
-        GoogleProtobufAny:
-            type: object
-            properties:
-                '@type':
-                    type: string
-                    description: The type of the serialized message.
-            additionalProperties: true
-            description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
-        MerchantAddProductRequest:
+                        $ref: '#/components/schemas/api.comment.v1.Comment'
+        api.comment.v1.MerchantAddProductRequest:
             type: object
             properties:
                 merchantId:
                     type: string
                 product:
-                    $ref: '#/components/schemas/Product'
+                    $ref: '#/components/schemas/api.comment.v1.Product'
             description: |-
                 商家流程
                  发布商品SKUID=10
-        MerchantAddProductResponse:
+        api.comment.v1.MerchantAddProductResponse:
             type: object
             properties:
                 success:
                     type: boolean
                 message:
                     type: string
-        MerchantReplyRequest:
+        api.comment.v1.MerchantReplyRequest:
             type: object
             properties:
                 merchantId:
@@ -219,14 +180,14 @@ components:
                 lastVersion:
                     type: string
             description: 对商品SKUID=10的其中一条评价发表回复
-        MerchantReplyResponse:
+        api.comment.v1.MerchantReplyResponse:
             type: object
             properties:
                 success:
                     type: boolean
                 message:
                     type: string
-        Product:
+        api.comment.v1.Product:
             type: object
             properties:
                 skuId:
@@ -234,7 +195,7 @@ components:
                 title:
                     type: string
             description: 商品消息定义
-        ReplyRequest:
+        api.comment.v1.ReplyRequest:
             type: object
             properties:
                 consumerId:
@@ -248,28 +209,12 @@ components:
                 lastVersion:
                     type: string
             description: 对商品SKUID=10的其中的一条评价发表回复
-        ReplyResponse:
+        api.comment.v1.ReplyResponse:
             type: object
             properties:
                 success:
                     type: boolean
                 message:
                     type: string
-        Status:
-            type: object
-            properties:
-                code:
-                    type: integer
-                    description: The status code, which should be an enum value of [google.rpc.Code][google.rpc.Code].
-                    format: int32
-                message:
-                    type: string
-                    description: A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the [google.rpc.Status.details][google.rpc.Status.details] field, or localized by the client.
-                details:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/GoogleProtobufAny'
-                    description: A list of messages that carry the error details.  There is a common set of message types for APIs to use.
-            description: 'The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors).'
 tags:
     - name: CommentService
